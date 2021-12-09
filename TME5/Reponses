@@ -1,0 +1,23 @@
+Quelles sont les variables d’instances nécessaires pour décrire le chariot ?
+
+A list of all the objects in the cart. (There are more auxiliary variables in our code, but for the description of the cart, it's only that).
+
+Dans quel cas un chargeur peut-il se trouver bloqué ?
+
+In the case that the cart is full.
+
+Dans quel cas le déchargeur peut-il se trouver bloqué ?
+
+If the cart is empty.
+
+Déduisez-en les mécanismes de synchronisation à mettre en place.
+
+To make the updates to the list atomically, using a mutex and condition variables.
+
+Quelles sont les difficultés liées à la présence de plusieurs chargeurs ?
+
+Problems of synchronization, when multiple chargers want to insert an object at the same time. There's also a termination problem. We need to wait for all chargers to finish, not only one of them.
+
+Proposez une solution pour traiter la terminaison du déchargeur, dans laquelle le code du déchargeur ne dépend pasdu nombre d’instances de chargeurs.
+
+It's impossible to do so without knowing the number of chargers and without accessing the stock itself. We need to know that all the chargers have finished, and for that, either we know "a priori" the number of chargers, or the chargers can indicate that they finish and end, one by one. But if they signal their start, it could be the case that one of them signals their start, does all the work, and then another one wants to signal that it is going to start, but at that point, the cart thinks that the loading has already finished. So we would need to signal the starts of the different changers sequentially, and before any of them gets to signal their finish. If we wanted to do it, we'd have to do it in out main method, before calling Thread.start().
