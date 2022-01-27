@@ -1,0 +1,11 @@
+# Comment faire pour terminer proprement l’application lorsque toutes les requêtes de tous les clients ont ́ete servies ?
+
+We could join() the clients in the main thread, to make sure that all reauest have been sent, and then interrupt() the server. In the server thread, we would detect the interruption, finish our remaining work, and willingly die. However, this approach would not be possible, because of the way the treatment of Type 2 tasks is done (an infinite loop). This means that clients will never be able to finish their work, because they need to send 5 requests, and they freeze before sending the 4th one. They freeze because we make them wait before sending the next request, and this means that they will never be able to send the 4th one, because the 3rd will take infinite time to complete. Therefore, our program never ends.
+
+Testez l’ensemble du système de tâches. Celui-ci se termine-t-il correctement ?
+
+No, because of the reason we already explained (there is an infinite wait for the completion of the third request, making the client wait inifinitely to send the fourth request).
+
+Quelles sont les modifications à apporter au système programmé précédemment ? Le problème de famine existe-t-il encore ?
+
+It improves the situation, because now, every client gets to transmit their third request. Before, once the server received one request of Type 2, no other client would be able to send another request, because the server thread would be forever stuck in the processment loop. By delegating the work on specific treatment threads, only these threads "freeze" (they don't actually freeze; they are doing an infinite active wait). The server is still able to accept new requests (bounded to the capacity of the system to create new threads; which, if surpassed, would throw an OutOfMemoryError); however, as we said before, no client will ever finish because they need to wait for the completion of their own requests, and the third one never completes.
